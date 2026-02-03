@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make)",
+      "Bash(cc -Wall -Wextra -Werror:*)",
+      "Bash(./test_lexer)",
+      "Bash(make clean:*)",
+      "Bash(./test_parser)",
+      "Bash(norminette:*)",
+      "Bash(cat:*)",
+      "Bash(make:*)",
+      "Bash(./tests/test_exec)",
+      "Bash(./minishell)",
+      "Bash(echo:*)"
+    ]
+  }
+}
