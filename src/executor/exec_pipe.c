@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../../includes/executor.h"
+#include "../../includes/signals.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +21,7 @@ static void	exec_pipe_child(t_ast_node *node, t_exec_ctx *ctx)
 {
 	int	status;
 
+	default_signals();
 	status = execute_ast(node, ctx);
 	cleanup_exec_ctx(ctx);
 	exit(status);
@@ -61,8 +63,10 @@ static int	wait_pipe_children(int pid_left, int pid_right)
 {
 	int	status;
 
+	ignore_signals();
 	waitpid(pid_left, NULL, 0);
 	waitpid(pid_right, &status, 0);
+	init_signals();
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
 	return (1);

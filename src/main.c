@@ -12,6 +12,8 @@
 
 #include "../includes/minishell.h"
 #include "../includes/executor.h"
+#include "../includes/signals.h"
+#include "../includes/expander.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <readline/readline.h>
@@ -35,6 +37,7 @@ static void	process_line(char *line, t_exec_ctx *ctx)
 		free_tokens(tokens);
 		return ;
 	}
+	expand_tokens(tokens, ctx);
 	ast = parse_tokens(tokens);
 	if (!ast)
 	{
@@ -53,6 +56,7 @@ static void	shell_loop(t_exec_ctx *ctx)
 
 	while (1)
 	{
+		g_sigint_received = 0;
 		line = readline("minishell> ");
 		if (!line)
 		{
@@ -76,6 +80,7 @@ int	main(void)
 		fprintf(stderr, "minishell: failed to initialize\n");
 		return (1);
 	}
+	init_signals();
 	shell_loop(ctx);
 	cleanup_exec_ctx(ctx);
 	return (0);

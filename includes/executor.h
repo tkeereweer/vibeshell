@@ -39,5 +39,7 @@ int			exec_external(char **argv, t_env *env);
 int			wait_child(int pid);
 int			setup_redirects(t_redirect *redir, t_exec_ctx *ctx);
 void		restore_redirects(t_exec_ctx *ctx);
+int			process_heredoc(t_redirect *redir, t_exec_ctx *ctx);
+int			process_all_heredocs(t_redirect *redir, t_exec_ctx *ctx);
 
 #endif

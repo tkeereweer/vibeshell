@@ -14,7 +14,7 @@ NAME		= minishell
 
 CC			= cc
 CFLAGS		= -Wall -Wextra -Werror
-INCLUDES	= -I includes -I libft
+INCLUDES	= -I includes -I libft -I/opt/homebrew/opt/readline/include/readline
 
 # Lexer sources
 LEXER_DIR	= src/lexer
@@ -53,7 +53,8 @@ EXECUTOR_FILES	= execute.c \
 				  exec_logical.c \
 				  exec_subshell.c \
 				  exec_utils.c \
-				  path_resolve.c
+				  path_resolve.c \
+				  heredoc.c
 
 # Environment sources
 ENV_DIR		= src/env
@@ -75,6 +76,20 @@ BUILTINS_FILES	= builtin_dispatcher.c \
 				  builtin_unset.c \
 				  builtin_exit.c
 
+# Signal sources
+SIGNALS_DIR		= src/signals
+SIGNALS_FILES	= signal_init.c \
+				  signal_handlers.c
+
+# Expander sources
+EXPANDER_DIR	= src/expander
+EXPANDER_FILES	= var_expansion.c \
+				  quote_removal.c \
+				  expand_tokens.c \
+				  expander_utils.c \
+				  wildcard.c \
+				  wildcard_utils.c
+
 # Util sources
 UTILS_DIR	= src/utils
 UTILS_FILES	= error.c
@@ -88,9 +103,11 @@ PARSER_SRCS		= $(addprefix $(PARSER_DIR)/, $(PARSER_FILES))
 EXECUTOR_SRCS	= $(addprefix $(EXECUTOR_DIR)/, $(EXECUTOR_FILES))
 ENV_SRCS		= $(addprefix $(ENV_DIR)/, $(ENV_FILES))
 BUILTINS_SRCS	= $(addprefix $(BUILTINS_DIR)/, $(BUILTINS_FILES))
+SIGNALS_SRCS	= $(addprefix $(SIGNALS_DIR)/, $(SIGNALS_FILES))
+EXPANDER_SRCS	= $(addprefix $(EXPANDER_DIR)/, $(EXPANDER_FILES))
 UTILS_SRCS		= $(addprefix $(UTILS_DIR)/, $(UTILS_FILES))
 
-SRCS		= $(MAIN_SRC) $(LEXER_SRCS) $(PARSER_SRCS) $(EXECUTOR_SRCS) $(ENV_SRCS) $(BUILTINS_SRCS) $(UTILS_SRCS)
+SRCS		= $(MAIN_SRC) $(LEXER_SRCS) $(PARSER_SRCS) $(EXECUTOR_SRCS) $(ENV_SRCS) $(BUILTINS_SRCS) $(SIGNALS_SRCS) $(EXPANDER_SRCS) $(UTILS_SRCS)
 OBJS		= $(SRCS:.c=.o)
 
 # Libft
@@ -100,7 +117,7 @@ LIBFT		= $(LIBFT_DIR)/libft.a
 all: $(NAME)
 
 $(NAME): $(OBJS) $(LIBFT)
-	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME) -lreadline
+	$(CC) $(CFLAGS) -L/opt/homebrew/opt/readline/lib -lreadline $(OBJS) $(LIBFT) -o $(NAME)
 
 $(LIBFT):
 	@if [ -d "$(LIBFT_DIR)" ]; then \

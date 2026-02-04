@@ -11,10 +11,26 @@
 /* ************************************************************************** */
 
 #include "../../includes/executor.h"
+#include "../../includes/signals.h"
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/wait.h>
+
+static void	exec_subshell_child(t_subshell_node *subshell, t_exec_ctx *ctx)
+{
+	int	status;
+
+	default_signals();
+	if (subshell->redirects)
+	{
+		process_all_heredocs(subshell->redirects, ctx);
+		setup_redirects(subshell->redirects, ctx);
+	}
+	status = execute_ast(subshell->child, ctx);
+	cleanup_exec_ctx(ctx);
+	exit(status);
+}
 
 int	exec_subshell(t_subshell_node *subshell, t_exec_ctx *ctx)
 {
@@ -28,17 +44,9 @@ int	exec_subshell(t_subshell_node *subshell, t_exec_ctx *ctx)
 		return (1);
 	}
 	if (pid == 0)
-	{
-		if (subshell->redirects)
-			setup_redirects(subshell->redirects, ctx);
-		status = execute_ast(subshell->child, ctx);
-		cleanup_exec_ctx(ctx);
-		exit(status);
-	}
-	waitpid(pid, &status, 0);
-	if (WIFEXITED(status))
-		return (WEXITSTATUS(status));
-	if (WIFSIGNALED(status))
-		return (128 + WTERMSIG(status));
-	return (1);
+		exec_subshell_child(subshell, ctx);
+	ignore_signals();
+	status = wait_child(pid);
+	init_signals();
+	return (status);
 }

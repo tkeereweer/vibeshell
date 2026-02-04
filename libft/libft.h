@@ -24,5 +24,7 @@ char	*ft_strjoin(char const *s1, char const *s2);
 char	*ft_strchr(const char *s, int c);
 char	**ft_split(char const *s, char c);
 void	ft_free_split(char **split);
+int		ft_isalpha(int c);
+int		ft_isalnum(int c);
 
 #endif

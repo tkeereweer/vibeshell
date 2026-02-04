@@ -11,7 +11,18 @@
       "Bash(make:*)",
       "Bash(./tests/test_exec)",
       "Bash(./minishell)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(chmod:*)",
+      "Bash(./quick_test.sh)",
+      "Bash(printf:*)",
+      "Bash(./demo_tests.sh)",
+      "Bash(./tests/demo_tests.sh)",
+      "Bash(bash:*)",
+      "Bash(ls:*)",
+      "Bash(./debug_expansion.sh)",
+      "Bash(./verify_all.sh:*)",
+      "Bash(nm:*)",
+      "Bash(cc:*)"
     ]
   }
 }

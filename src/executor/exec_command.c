@@ -12,6 +12,8 @@
 
 #include "../../includes/executor.h"
 #include "../../includes/builtins.h"
+#include "../../includes/signals.h"
+#include "../../includes/expander.h"
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -34,6 +36,7 @@ int	exec_external(char **argv, t_env *env)
 	char	*path;
 	char	**envp;
 
+	default_signals();
 	path = resolve_path(argv[0], env);
 	if (!path)
 	{
@@ -53,6 +56,7 @@ int	exec_external(char **argv, t_env *env)
 static int	exec_forked(char **argv, t_env *env)
 {
 	int	pid;
+	int	status;
 
 	pid = fork();
 	if (pid < 0)
@@ -62,17 +66,38 @@ static int	exec_forked(char **argv, t_env *env)
 	}
 	if (pid == 0)
 		exec_external(argv, env);
-	return (wait_child(pid));
+	ignore_signals();
+	status = wait_child(pid);
+	init_signals();
+	return (status);
+}
+
+static void	apply_wildcard_expansion(t_cmd_node *cmd, char ***old)
+{
+	char	**expanded;
+
+	expanded = expand_argv_wildcards(cmd->argv);
+	if (expanded)
+	{
+		*old = cmd->argv;
+		cmd->argv = expanded;
+	}
+	else
+		*old = NULL;
 }
 
 int	exec_command(t_cmd_node *cmd, t_exec_ctx *ctx)
 {
-	int	status;
+	int		status;
+	char	**old_argv;
 
 	if (!cmd->argv || !cmd->argv[0])
 		return (0);
+	apply_wildcard_expansion(cmd, &old_argv);
 	if (cmd->redirects)
 	{
+		if (process_all_heredocs(cmd->redirects, ctx) == -1)
+			return (1);
 		if (setup_redirects(cmd->redirects, ctx) == -1)
 			return (1);
 	}
@@ -82,5 +107,7 @@ int	exec_command(t_cmd_node *cmd, t_exec_ctx *ctx)
 		status = exec_forked(cmd->argv, ctx->env);
 	if (cmd->redirects)
 		restore_redirects(ctx);
+	if (old_argv)
+		free_argv(old_argv);
 	return (status);
 }
